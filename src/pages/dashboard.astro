@@ -3,5 +3,17 @@
 import ProtectedLayout from "../layouts/ProtectedLayout.astro";
 ---
 <ProtectedLayout title="Panel de Usuario">
-    <p>Este contenido está protegido y solo se muestra si el usuario ha iniciado sesión.</p>
+    <h1>Nuevo mensaje temporal</h1>
+    <form hx-post="/api/messages/new" hx-trigger="submit" hx-swap="outerHTML">
+        <textarea name="content" required></textarea>
+        <label>
+            Encriptado
+            <input type="checkbox" name="encrypted" />
+        </label>
+        <label>
+            Expira en segundos:
+            <input type="number" name="expiresIn" value="300" />
+        </label>
+        <button type="submit">Generar Link</button>
+    </form>
 </ProtectedLayout>

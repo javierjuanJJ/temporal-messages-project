@@ -1,0 +1,7 @@
+---
+const { id } = Astro.params;
+const res = await fetch(`/api/messages/${id}`);
+const message = await res.json();
+---
+<h1>Mensaje</h1>
+<pre>{message.content}</pre>
