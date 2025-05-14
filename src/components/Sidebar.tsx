@@ -1,5 +1,6 @@
 import clsx from "clsx"; // opcional: para clases condicionales
 import "../styles/global.css";
+import {NavLink} from "react-router";
 export default function Sidebar({ open }: { open: boolean }) {
     return (
         <aside
@@ -14,10 +15,49 @@ export default function Sidebar({ open }: { open: boolean }) {
             )}
         >
             <nav className="flex flex-col gap-4">
-                <a href="/mensajes">📨 Mensajes</a>
-                <a href="/historial">📂 Historial</a>
-                <a href="/papelera">🗑 Papelera</a>
-                <a href="/configuracion">⚙️ Configuración</a>
+                <NavLink
+                    to="/messages"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-2 rounded-md hover:bg-zinc-800 ${
+                            isActive ? "bg-zinc-800 text-indigo-400" : "text-zinc-300"
+                        }`
+                    }
+                >
+                    📩 Mensajes
+                </NavLink>
+
+                <NavLink
+                    to="/history"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-2 rounded-md hover:bg-zinc-800 ${
+                            isActive ? "bg-zinc-800 text-indigo-400" : "text-zinc-300"
+                        }`
+                    }
+                >
+                    📜 Historial
+                </NavLink>
+
+                <NavLink
+                    to="/trash"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-2 rounded-md hover:bg-zinc-800 ${
+                            isActive ? "bg-zinc-800 text-red-400" : "text-zinc-300"
+                        }`
+                    }
+                >
+                    🗑️ Papelera
+                </NavLink>
+                <NavLink
+                    to="/settings"
+                    className={({ isActive }) =>
+                        `flex items-center gap-2 px-3 py-2 rounded-md hover:bg-zinc-800 ${
+                            isActive ? "bg-zinc-800 text-indigo-400" : "text-zinc-300"
+                        }`
+                    }
+                >
+                    ⚙️ Configuración
+                </NavLink>
+
             </nav>
         </aside>
     );

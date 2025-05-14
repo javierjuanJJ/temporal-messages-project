@@ -22,3 +22,10 @@
 html {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .max-w-4xl {
+        max-width: 100%;
+        padding: 16px;
+    }
+}
