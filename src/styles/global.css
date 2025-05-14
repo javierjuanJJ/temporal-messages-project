@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* index.css o tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @keyframes slideIn {
     from {
         opacity: 0;

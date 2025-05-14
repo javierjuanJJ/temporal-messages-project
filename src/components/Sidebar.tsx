@@ -1,16 +1,16 @@
 import clsx from "clsx"; // opcional: para clases condicionales
-
+import "../styles/global.css";
 export default function Sidebar({ open }: { open: boolean }) {
     return (
         <aside
             className={
-            clsx(
-                {
-                    "bg-zinc-900 text-white w-64 p-4 h-screen fixed md:relative z-40 transition-transform duration-300",
-                    "translate-x-0": open,
-                    "-translate-x-full": !open,
-                    "md:translate-x-0": true,
-                }
+            //"bg-zinc-900 text-white w-64 p-4 h-screen fixed md:relative z-40 transition-transform duration-300",
+
+                clsx(
+                    { "translate-x-0": open,
+                        "-translate-x-full": !open,
+                        "md:translate-x-0": true },
+                    "bg-zinc-900 text-white w-64 p-4 h-screen fixed md:relative z-40 transition-transform duration-300"
             )}
         >
             <nav className="flex flex-col gap-4">
