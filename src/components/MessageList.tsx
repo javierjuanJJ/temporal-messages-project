@@ -6,7 +6,7 @@ import {useEffect} from "react";
 type Message = {
     id: string;
     content: string;
-    expires_at: string;
+    trashExpiresAt: string;
     read: boolean;
 };
 
@@ -18,8 +18,10 @@ export default function MessageList({messages}: { messages: Message[] }) {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [pendingDelete, setPendingDelete] = useState<{ msg: Message; timer: NodeJS.Timeout } | null>(null);
+    const [trash, setTrash] = useState<Message[]>([]);
 
     const perPage = 5;
+
 
     // Cargar desde localStorage al inicio
     useEffect(() => {
@@ -38,36 +40,49 @@ export default function MessageList({messages}: { messages: Message[] }) {
     useEffect(() => {
         const interval = setInterval(() => {
             setList(prev =>
-                prev.filter(msg => new Date(msg.expires_at) > new Date())
+                prev.filter(msg => new Date(msg.trashExpiresAt) > new Date())
             );
         }, 10000); // Cada 10 segundos (ajustable)
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTrash(prev =>
+                prev.filter(m => new Date(m.trashExpiresAt) > new Date())
+            );
+        }, 60000); // cada minuto
+
+        return () => clearInterval(interval);
+    }, []);
+
+
     const deleteExpiredMessages = () => {
-        const expired = list.filter(msg => new Date(msg.expires_at) < new Date());
+        const expired = list.filter(msg => new Date(msg.trashExpiresAt) < new Date());
         if (expired.length === 0) {
             alert("No hay mensajes expirados.");
             return;
         }
 
         if (confirm(`¿Eliminar ${expired.length} mensaje(s) expirado(s)?`)) {
-            setList(prev => prev.filter(msg => new Date(msg.expires_at) > new Date()));
+            setList(prev => prev.filter(msg => new Date(msg.trashExpiresAt) > new Date()));
         }
     };
     const deleteMessage = (id: string) => {
         const msg = list.find(m => m.id === id);
         if (!msg) return;
 
-        setList(prev => prev.filter(m => m.id !== id)); // lo quitamos visualmente
+        const now = new Date();
+        const deletedAt = now.toISOString();
+        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
 
-        const timer = setTimeout(() => {
-            setPendingDelete(null);
-            // Aquí podrías hacer el DELETE real al backend si hace falta
-        }, 5000); // 5 segundos de margen
+        const trashMsg = { ...msg, deletedAt, trashExpiresAt: expiresAt };
 
-        setPendingDelete({ msg, timer: timer as unknown as NodeJS.Timeout });
+        setList(prev => prev.filter(m => m.id !== id));
+        setTrash(prev => [trashMsg, ...prev]);
     };
+
 
     const undoDelete = () => {
         if (pendingDelete) {
@@ -82,7 +97,7 @@ export default function MessageList({messages}: { messages: Message[] }) {
     const filtered = useMemo(() => {
         return list
             .filter(msg => {
-                const expired = new Date(msg.expires_at) < now;
+                const expired = new Date(msg.trashExpiresAt) < now;
                 if (filter === "read") return msg.read;
                 if (filter === "expired") return expired;
                 if (filter === "active") return !msg.read && !expired;
@@ -102,7 +117,7 @@ export default function MessageList({messages}: { messages: Message[] }) {
 
     const exportAsText = () => {
         const text = filtered
-            .map(msg => `Mensaje: ${msg.content}\nExpira: ${msg.expires_at}\nLeído: ${msg.read}\n`)
+            .map(msg => `Mensaje: ${msg.content}\nExpira: ${msg.trashExpiresAt}\nLeído: ${msg.read}\n`)
             .join("\n---\n");
         const blob = new Blob([text], {type: "text/plain"});
         downloadBlob(blob, "mensajes.txt");
@@ -116,6 +131,23 @@ export default function MessageList({messages}: { messages: Message[] }) {
         a.click();
         URL.revokeObjectURL(url);
     };
+
+    const restoreMessage = (id: string) => {
+        const msg = trash.find(m => m.id === id);
+        if (!msg) return;
+
+        setTrash(prev => prev.filter(m => m.id !== id));
+        setList(prev => [msg, ...prev]);
+    };
+
+    const purgeMessage = (id: string) => {
+        if (id === "all") {
+            setTrash([]);
+        } else {
+            setTrash(prev => prev.filter(m => m.id !== id));
+        }
+    };
+
 
     return (
         <div className="space-y-4">
