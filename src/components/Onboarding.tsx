@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Onboarding() {
     const [step, setStep] = useState(1);
@@ -8,12 +10,13 @@ export default function Onboarding() {
     useEffect(() => {
         const completed = localStorage.getItem("onboardingCompleted");
         if (completed) {
-            navigate("/home"); // Redirige si el tutorial ya fue completado
+            navigate("/home");
         }
     }, [navigate]);
 
     const handleNextStep = () => {
         setStep((prev) => prev + 1);
+        toast.success(`Paso ${step} completado`);
     };
 
     const handleSkip = () => {
@@ -24,12 +27,24 @@ export default function Onboarding() {
     const handleFinish = () => {
         localStorage.setItem("onboardingCompleted", "true");
         navigate("/home");
+        toast.success("Tutorial completado!");
     };
+
+    // Progreso de la barra
+    const progress = (step / 3) * 100;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-md shadow-lg max-w-sm w-full">
                 <h2 className="text-2xl font-semibold mb-4">Bienvenido a MicroPaste</h2>
+
+                {/* Barra de progreso */}
+                <div className="w-full bg-gray-300 rounded-full h-2 mb-4">
+                    <div
+                        className="bg-indigo-600 h-2 rounded-full"
+                        style={{ width: `${progress}%` }}
+                    ></div>
+                </div>
 
                 {step === 1 && (
                     <div>
@@ -72,6 +87,9 @@ export default function Onboarding() {
                     <button onClick={handleFinish} className="text-gray-500">Cerrar</button>
                 </div>
             </div>
+
+            {/* Contenedor de notificaciones */}
+            <ToastContainer />
         </div>
     );
 }
