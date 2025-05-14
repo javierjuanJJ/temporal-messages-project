@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import {useState, useMemo} from "react";
 import MessageItem from "./MessageItem";
-import { AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import {AnimatePresence} from "framer-motion";
+import {useEffect} from "react";
 
 type Message = {
     id: string;
@@ -12,12 +12,27 @@ type Message = {
 
 type Filter = "all" | "active" | "read" | "expired";
 
-export default function MessageList({ messages }: { messages: Message[] }) {
+export default function MessageList({messages}: { messages: Message[] }) {
     const [list, setList] = useState(messages);
     const [filter, setFilter] = useState<Filter>("all");
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
+    const [pendingDelete, setPendingDelete] = useState<{ msg: Message; timer: NodeJS.Timeout } | null>(null);
+
     const perPage = 5;
+
+    // Cargar desde localStorage al inicio
+    useEffect(() => {
+        const saved = localStorage.getItem("userMessages");
+        if (saved) {
+            setList(JSON.parse(saved));
+        }
+    }, []);
+
+    // Guardar en localStorage cuando cambia la lista
+    useEffect(() => {
+        localStorage.setItem("userMessages", JSON.stringify(list));
+    }, [list]);
 
 
     useEffect(() => {
@@ -40,12 +55,25 @@ export default function MessageList({ messages }: { messages: Message[] }) {
             setList(prev => prev.filter(msg => new Date(msg.expires_at) > new Date()));
         }
     };
-    const deleteMessage = async (id: string) => {
-        const res = await fetch(`/api/messages/${id}`, { method: "DELETE" });
-        if (res.ok) {
-            setList(prev => prev.filter(msg => msg.id !== id));
-        } else {
-            alert("Error al eliminar el mensaje.");
+    const deleteMessage = (id: string) => {
+        const msg = list.find(m => m.id === id);
+        if (!msg) return;
+
+        setList(prev => prev.filter(m => m.id !== id)); // lo quitamos visualmente
+
+        const timer = setTimeout(() => {
+            setPendingDelete(null);
+            // Aquí podrías hacer el DELETE real al backend si hace falta
+        }, 5000); // 5 segundos de margen
+
+        setPendingDelete({ msg, timer: timer as unknown as NodeJS.Timeout });
+    };
+
+    const undoDelete = () => {
+        if (pendingDelete) {
+            clearTimeout(pendingDelete.timer);
+            setList(prev => [pendingDelete.msg!, ...prev]);
+            setPendingDelete(null);
         }
     };
 
@@ -68,7 +96,7 @@ export default function MessageList({ messages }: { messages: Message[] }) {
 
     const exportAsJSON = () => {
         const dataStr = JSON.stringify(filtered, null, 2);
-        const blob = new Blob([dataStr], { type: "application/json" });
+        const blob = new Blob([dataStr], {type: "application/json"});
         downloadBlob(blob, "mensajes.json");
     };
 
@@ -76,7 +104,7 @@ export default function MessageList({ messages }: { messages: Message[] }) {
         const text = filtered
             .map(msg => `Mensaje: ${msg.content}\nExpira: ${msg.expires_at}\nLeído: ${msg.read}\n`)
             .join("\n---\n");
-        const blob = new Blob([text], { type: "text/plain" });
+        const blob = new Blob([text], {type: "text/plain"});
         downloadBlob(blob, "mensajes.txt");
     };
 
@@ -118,7 +146,7 @@ export default function MessageList({ messages }: { messages: Message[] }) {
                             }}
                         >
                             {
-                                { all: "Todos", active: "Activos", read: "Leídos", expired: "Expirados" }[
+                                {all: "Todos", active: "Activos", read: "Leídos", expired: "Expirados"}[
                                     option
                                     ]
                             }
@@ -149,7 +177,7 @@ export default function MessageList({ messages }: { messages: Message[] }) {
             ) : (
                 <AnimatePresence>
                     {paginated.map((msg, i) => (
-                        <MessageItem key={msg.id} message={msg} index={i} onDelete={deleteMessage} />
+                        <MessageItem key={msg.id} message={msg} index={i} onDelete={deleteMessage}/>
                     ))}
                 </AnimatePresence>
             )}
@@ -183,6 +211,18 @@ export default function MessageList({ messages }: { messages: Message[] }) {
                         className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40"
                     >
                         Siguiente ➡️
+                    </button>
+                </div>
+            )}
+
+            {pendingDelete && (
+                <div className="fixed bottom-4 right-4 bg-zinc-900 border border-zinc-700 px-4 py-3 rounded-lg shadow-lg flex items-center gap-4 animate-slideIn">
+                    <span className="text-sm text-white">Mensaje eliminado</span>
+                    <button
+                        onClick={undoDelete}
+                        className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded-md"
+                    >
+                        ↩️ Deshacer
                     </button>
                 </div>
             )}
