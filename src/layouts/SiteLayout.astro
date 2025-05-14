@@ -1,29 +1,39 @@
 ---
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/astro/components";
 const { title } = Astro.props;
+
+// Get the Backend User object when you need access to the user's information
+const user = await Astro.locals.currentUser()
 ---
 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es" class="bg-zinc-950 text-white">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mensajes Temporales</title>
+    <link rel="stylesheet" href="/tailwind.css" />
 </head>
-<body>
-<header>
-    <h1>{title}</h1>
-    <nav>
-        <SignedOut>
-            <SignInButton mode="modal" />
-        </SignedOut>
-        <SignedIn>
-            <UserButton />
-        </SignedIn>
-    </nav>
+<body class="min-h-screen flex flex-col items-center justify-start">
+<header class="w-full p-4 bg-zinc-900 shadow-md flex justify-between items-center">
+    <h1 class="text-xl font-bold tracking-tight">
+        🕵️ Mensajes Temporales
+    </h1>
+    <div class="text-sm text-zinc-300">
+        {user ? (
+                <span>👤 {user.firstName}</span>
+        ) : (
+                <a href="/sign-in" class="hover:underline">Iniciar sesión</a>
+        )}
+    </div>
 </header>
-<article>
+
+<main class="w-full max-w-2xl p-6">
     <slot />
-</article>
+</main>
+
+<footer class="mt-auto p-4 text-center text-xs text-zinc-500">
+    &copy; {new Date().getFullYear()} MicroCMS Temporal · Privado · Seguro
+</footer>
 </body>
 </html>
