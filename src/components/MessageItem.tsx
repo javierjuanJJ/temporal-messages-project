@@ -1,80 +1,25 @@
-import {useState} from "react";
-import {motion, AnimatePresence} from "framer-motion";
-import CopyLinkWithFeedback from "./CopyLinkWithFeedback";
+import { motion } from "framer-motion";
 
-type Message = {
-    id: string;
-    content: string;
-    expires_at: string;
-    read: boolean;
-};
-
-export default function MessageItem({
-                                        message,
-                                        onDelete,
-                                        index,
-                                    }: {
-    message: Message;
-    onDelete: (id: string) => void;
-    index: number;
-}) {
-    const [confirming, setConfirming] = useState(false);
-    const expired = new Date(message.expires_at) < new Date();
-    const url = `${location.origin}/m/${message.id}`;
-
+export default function MessageItem({ message, index, onDelete }: any) {
     return (
-        <AnimatePresence>
-            <motion.div
-                key={message.id}
-                initial={{opacity: 0, y: 10}}
-                animate={{opacity: 1, y: 0, transition: {delay: index * 0.05}}}
-                exit={{opacity: 0, x: -20, transition: {duration: 0.2}}}
-                layout
-                className={`p-4 rounded-md border ${
-                    expired ? "border-red-500" : "border-zinc-700"
-                } bg-zinc-900 mb-3`}
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className="bg-zinc-800 p-4 rounded-md border border-zinc-700 text-white relative"
+        >
+            <p className="text-sm">{message.content}</p>
+            <div className="flex justify-between mt-2 text-xs text-zinc-400">
+                <span>Expira: {new Date(message.expires_at).toLocaleString()}</span>
+                <span>{message.read ? "Leído ✅" : "No leído"}</span>
+            </div>
+            <button
+                onClick={() => onDelete(message.id)}
+                className="absolute top-2 right-2 text-red-400 hover:text-red-500 text-sm"
             >
-                <p className="text-sm text-zinc-400 mb-2">
-                    <strong>Expira:</strong>{" "}
-                    {new Date(message.expires_at).toLocaleString()} ·
-                    <strong> Estado:</strong>{" "}
-                    {message.read ? "Leído" : expired ? "Expirado" : "Activo"}
-                </p>
-
-                <div className="text-zinc-300 text-sm truncate">
-                    {message.content.slice(0, 100)}
-                    {message.content.length > 100 ? "..." : ""}
-                </div>
-
-                <CopyLinkWithFeedback link={url}/>
-
-                <div className="mt-3 flex gap-2">
-                    {!confirming ? (
-                        <button
-                            className="text-sm text-red-400 hover:underline"
-                            onClick={() => setConfirming(true)}
-                        >
-                            🗑️ Eliminar
-                        </button>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <span className="text-sm text-zinc-400">¿Confirmar?</span>
-                            <button
-                                onClick={() => onDelete(message.id)}
-                                className="text-sm text-red-500 font-semibold"
-                            >
-                                Sí
-                            </button>
-                            <button
-                                onClick={() => setConfirming(false)}
-                                className="text-sm text-zinc-400 hover:text-white"
-                            >
-                                No
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </motion.div>
-        </AnimatePresence>
+                ✖
+            </button>
+        </motion.div>
     );
 }

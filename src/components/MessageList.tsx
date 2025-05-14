@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import MessageItem from "./MessageItem";
+import { AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 
 type Message = {
     id: string;
@@ -17,6 +19,27 @@ export default function MessageList({ messages }: { messages: Message[] }) {
     const [page, setPage] = useState(1);
     const perPage = 5;
 
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setList(prev =>
+                prev.filter(msg => new Date(msg.expires_at) > new Date())
+            );
+        }, 10000); // Cada 10 segundos (ajustable)
+
+        return () => clearInterval(interval);
+    }, []);
+    const deleteExpiredMessages = () => {
+        const expired = list.filter(msg => new Date(msg.expires_at) < new Date());
+        if (expired.length === 0) {
+            alert("No hay mensajes expirados.");
+            return;
+        }
+
+        if (confirm(`¿Eliminar ${expired.length} mensaje(s) expirado(s)?`)) {
+            setList(prev => prev.filter(msg => new Date(msg.expires_at) > new Date()));
+        }
+    };
     const deleteMessage = async (id: string) => {
         const res = await fetch(`/api/messages/${id}`, { method: "DELETE" });
         if (res.ok) {
@@ -124,10 +147,22 @@ export default function MessageList({ messages }: { messages: Message[] }) {
             {paginated.length === 0 ? (
                 <p className="text-zinc-400">No hay mensajes con ese criterio.</p>
             ) : (
-                paginated.map((msg, i) => (
-                    <MessageItem key={msg.id} message={msg} index={i} onDelete={deleteMessage} />
-                ))
+                <AnimatePresence>
+                    {paginated.map((msg, i) => (
+                        <MessageItem key={msg.id} message={msg} index={i} onDelete={deleteMessage} />
+                    ))}
+                </AnimatePresence>
             )}
+
+            {/* 🧹 Botón eliminar todos expirados */}
+            <div className="flex justify-end">
+                <button
+                    onClick={deleteExpiredMessages}
+                    className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                >
+                    🧹 Eliminar todos los expirados
+                </button>
+            </div>
 
             {/* 📚 Controles de paginación */}
             {totalPages > 1 && (
