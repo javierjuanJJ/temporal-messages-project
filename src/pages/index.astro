@@ -4,39 +4,39 @@ import "../styles/global.css";
 ---
 
 <SiteLayout>
-	<h2 class="text-2xl font-semibold mb-4">Crear mensaje temporal</h2>
-	<form method="POST" action="/api/messages/new" class="space-y-4 bg-zinc-900 p-6 rounded-xl shadow-md">
+    <h2 class="text-2xl font-semibold mb-4">Crear mensaje temporal</h2>
+    <form method="POST" action="/api/messages/new" class="space-y-4 bg-zinc-900 p-6 rounded-xl shadow-md">
     <textarea
-		name="content"
-		placeholder="Escribe tu mensaje..."
-		required
-		class="w-full p-3 rounded-md bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-		rows="5"
-	></textarea>
+            name="content"
+            placeholder="Escribe tu mensaje..."
+            required
+            class="w-full p-3 rounded-md bg-zinc-800 text-white border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            rows="5"
+    ></textarea>
 
-		<div class="flex items-center gap-4">
-			<label class="flex items-center gap-2 text-sm">
-				<input type="checkbox" name="encrypted" class="accent-indigo-500" />
-				Encriptar mensaje
-			</label>
+        <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="encrypted" class="accent-indigo-500"/>
+                Encriptar mensaje
+            </label>
 
-			<label class="text-sm">
-				Expira en (segundos):
-				<input
-					type="number"
-					name="expiresIn"
-					value="300"
-					min="10"
-					class="ml-2 w-20 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white"
-				/>
-			</label>
-		</div>
+            <label class="text-sm">
+                Expira en (segundos):
+                <input
+                        type="number"
+                        name="expiresIn"
+                        value="300"
+                        min="10"
+                        class="ml-2 w-20 px-2 py-1 rounded bg-zinc-800 border border-zinc-700 text-white"
+                />
+            </label>
+        </div>
 
-		<button
-			type="submit"
-			class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg text-white font-semibold transition"
-		>
-			Generar link
-		</button>
-	</form>
+        <button
+                type="submit"
+                class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg text-white font-semibold transition"
+        >
+            Generar link
+        </button>
+    </form>
 </SiteLayout>

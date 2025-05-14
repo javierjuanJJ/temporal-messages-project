@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import {useState} from "react";
+import {motion} from "framer-motion";
 
 type Props = {
     link: string;
 };
 
-export default function CopyLinkWithFeedback({ link }: Props) {
+export default function CopyLinkWithFeedback({link}: Props) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -24,9 +24,9 @@ export default function CopyLinkWithFeedback({ link }: Props) {
             </button>
 
             <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={copied ? { opacity: 1, y: 0 } : { opacity: 0, y: -5 }}
-                transition={{ duration: 0.3 }}
+                initial={{opacity: 0, y: -5}}
+                animate={copied ? {opacity: 1, y: 0} : {opacity: 0, y: -5}}
+                transition={{duration: 0.3}}
                 className="text-green-400 text-sm"
             >
                 ¡Copiado!

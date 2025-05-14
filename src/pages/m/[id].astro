@@ -1,6 +1,6 @@
 ---
 import SiteLayout from "../../layouts/SiteLayout.astro";
-const { id } = Astro.params;
+const {id} = Astro.params;
 const res = await fetch(`/api/messages/${id}`);
 let message = null;
 let error = null;
