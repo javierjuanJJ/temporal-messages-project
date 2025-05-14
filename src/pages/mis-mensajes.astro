@@ -1,0 +1,43 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+// Get the Backend User object when you need access to the user's information
+const user = await Astro.locals.currentUser();
+const res = await fetch("/api/messages/user", {
+    headers: { Authorization: `Bearer ${Astro.cookies.get("__session")?.value}` },
+});
+
+const mensajes = res.ok ? await res.json() : [];
+const now = new Date();
+---
+<SiteLayout>
+    <h2 class="text-2xl font-semibold mb-6">📜 Tus mensajes temporales</h2>
+
+    {mensajes.length === 0 ? (
+            <p class="text-zinc-400">No has creado mensajes aún.</p>
+    ) : (
+            <div class="space-y-4">
+                {mensajes.map(msg => {
+                    const expired = new Date(msg.expires_at) < now;
+                    return (
+                            <div class={`p-4 rounded-md border ${expired ? 'border-red-500' : 'border-zinc-700'} bg-zinc-900`}>
+                                <p class="text-sm text-zinc-400 mb-2">
+                                    <strong>Expira:</strong> {new Date(msg.expires_at).toLocaleString()} ·
+                                    <strong> Estado:</strong> {msg.read ? 'Leído' : expired ? 'Expirado' : 'Activo'}
+                                </p>
+                                <div class="text-zinc-300 text-sm truncate">
+                                    {msg.content.slice(0, 100)}{msg.content.length > 100 ? '...' : ''}
+                                </div>
+                                <a
+                                        href={`/m/${msg.id}`}
+                                        class="inline-block mt-2 text-indigo-400 hover:underline text-sm"
+                                        target="_blank"
+                                >
+                                    🔗 Ver enlace
+                                </a>
+                            </div>
+                    );
+                })}
+            </div>
+    )}
+</SiteLayout>
